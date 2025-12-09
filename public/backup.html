@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup Data</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container animate-fade-in">
+        <div class="header flex-between">
+            <div>
+                <h1>Backup & Export</h1>
+                <p class="text-muted">Download your data for safekeeping</p>
+            </div>
+            <a href="index.html" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+            <!-- Database Backup -->
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">📊 Database Backup (JSON)</h3>
+                <p class="text-muted" style="margin-bottom: 1.5rem;">
+                    Export all member data and documents metadata as JSON file
+                </p>
+                <button class="btn btn-block" onclick="downloadBackup('database')">
+                    Download Database JSON
+                </button>
+            </div>
+
+            <!-- Database File -->
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">💾 Database File (SQLite)</h3>
+                <p class="text-muted" style="margin-bottom: 1.5rem;">
+                    Download the complete SQLite database file
+                </p>
+                <button class="btn btn-block" onclick="downloadBackup('database-file')">
+                    Download SQLite File
+                </button>
+            </div>
+
+            <!-- Files Backup -->
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">📁 Uploaded Files (ZIP)</h3>
+                <p class="text-muted" style="margin-bottom: 1.5rem;">
+                    Download all uploaded documents as a ZIP archive
+                </p>
+                <button class="btn btn-block" onclick="downloadBackup('files')">
+                    Download Files ZIP
+                </button>
+            </div>
+
+            <!-- Full Backup -->
+            <div class="card" style="border: 2px solid var(--primary);">
+                <h3 style="margin-bottom: 1rem; color: var(--primary);">🎯 Full Backup (Recommended)</h3>
+                <p class="text-muted" style="margin-bottom: 1.5rem;">
+                    Download everything: database + all uploaded files
+                </p>
+                <button class="btn btn-block" onclick="downloadBackup('full')">
+                    Download Full Backup
+                </button>
+            </div>
+        </div>
+
+        <!-- Restore Instructions -->
+        <div class="card" style="margin-top: 2rem; background: rgba(30, 41, 59, 0.4);">
+            <h3 style="margin-bottom: 1rem;">📖 Restore Instructions</h3>
+            <ol style="line-height: 1.8; color: var(--text-muted); margin-left: 1.5rem;">
+                <li>Stop the server</li>
+                <li>Replace <code>database.sqlite</code> with your backup file</li>
+                <li>Extract uploaded files to the <code>uploads/</code> folder</li>
+                <li>Restart the server</li>
+            </ol>
+            <p class="text-muted" style="margin-top: 1rem;">
+                <strong>Note:</strong> Always keep regular backups in a safe location.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5001/api';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+
+        async function downloadBackup(type) {
+            try {
+                const button = event.target;
+                button.disabled = true;
+                button.textContent = 'Preparing...';
+
+                const res = await fetch(`${API_URL}/backup/${type}`, {
+                    headers: { 'x-auth-token': token }
+                });
+
+                if (!res.ok) {
+                    throw new Error('Backup failed');
+                }
+
+                // Get filename from Content-Disposition header or create one
+                const contentDisposition = res.headers.get('Content-Disposition');
+                let filename = `backup-${type}-${Date.now()}`;
+
+                if (contentDisposition) {
+                    const matches = /filename=([^;]+)/.exec(contentDisposition);
+                    if (matches && matches[1]) {
+                        filename = matches[1].replace(/['"]/g, '');
+                    }
+                }
+
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                button.disabled = false;
+                button.textContent = button.textContent.replace('Preparing...', 'Download');
+                alert('Backup downloaded successfully!');
+            } catch (err) {
+                console.error(err);
+                alert('Error downloading backup');
+                event.target.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

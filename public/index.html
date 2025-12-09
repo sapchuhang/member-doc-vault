@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Login Section -->
+    <div id="login-section" class="container-sm animate-fade-in">
+        <div class="card">
+            <div class="text-center">
+                <h2 style="margin-bottom: 0.5rem;">Admin Login</h2>
+                <p class="text-muted" style="margin-bottom: 2rem;">Sign in to manage members</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="Enter admin username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter admin password" required>
+                </div>
+                <button type="submit" class="btn btn-block">Sign In</button>
+            </form>
+            <p class="text-center mt-4" style="margin-top: 1.5rem;">
+                <a href="forgot_password.html" class="text-sm">Forgot Password?</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard-section" class="container animate-fade-in" style="display: none;">
+        <div class="header flex-between">
+            <div>
+                <h1>Dashboard</h1>
+                <p class="text-muted">Manage your organization members</p>
+            </div>
+            <div class="flex">
+                <input type="text" id="search-input" placeholder="Search members...">
+                <a href="add_member.html" class="btn">
+                    <span style="margin-right: 0.5rem;">+</span> Add Member
+                </a>
+                <a href="backup.html" class="btn btn-secondary">💾 Backup</a>
+                <a href="change_password.html" class="btn btn-secondary">Change Password</a>
+                <span class="logout" onclick="logout()">Logout</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <ul id="member-list" class="member-list">
+                <!-- Members will be loaded here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5001/api';
+
+        // Check if logged in
+        const token = localStorage.getItem('token');
+        if (token) {
+            showDashboard();
+        } else {
+            document.getElementById('login-section').style.display = 'block';
+        }
+
+        // Login
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('token', data.token);
+                    showDashboard();
+                } else {
+                    alert(data.msg);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            location.reload();
+        }
+
+        function showDashboard() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('dashboard-section').style.display = 'block';
+            loadMembers();
+        }
+
+        let allMembers = [];
+
+        async function loadMembers() {
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch(`${API_URL}/members`, {
+                    headers: { 'x-auth-token': token }
+                });
+                allMembers = await res.json();
+                renderMembers(allMembers);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderMembers(members) {
+            const list = document.getElementById('member-list');
+            list.innerHTML = '';
+
+            if (members.length === 0) {
+                list.innerHTML = '<p class="text-center text-muted" style="padding: 2rem;">No members found.</p>';
+                return;
+            }
+
+            members.forEach(member => {
+                const li = document.createElement('li');
+                li.className = 'member-item';
+                li.innerHTML = `
+                    <div class="member-info">
+                        <h3>${member.name}</h3>
+                        <p>${member.email}</p>
+                        <p><small class="text-muted">Joined ${new Date(member.createdAt).toLocaleDateString()}</small></p>
+                    </div>
+                    <div class="flex">
+                        <a href="member_details.html?id=${member.id}" class="btn btn-secondary">View</a>
+                        <button class="btn btn-danger" onclick="deleteMember('${member.id}')">Delete</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allMembers.filter(m =>
+                m.name.toLowerCase().includes(term) ||
+                m.email.toLowerCase().includes(term)
+            );
+            renderMembers(filtered);
+        });
+
+        async function deleteMember(id) {
+            if (!confirm('Are you sure you want to delete this member? This will delete all their documents as well.')) return;
+
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch(`${API_URL}/members/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'x-auth-token': token }
+                });
+                if (res.ok) {
+                    loadMembers();
+                } else {
+                    alert('Error deleting member');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+
+</html>
