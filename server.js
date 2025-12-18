@@ -26,7 +26,7 @@ app.use('/api/backup', require('./routes/backup'));
 const PORT = process.env.PORT || 5001;
 
 // Initialize database and start server
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync().then(() => {
   console.log('Database synced');
   app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 }).catch(err => {
