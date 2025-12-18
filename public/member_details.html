@@ -157,7 +157,7 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:5001/api';
+        const API_URL = '/api';
         const urlParams = new URLSearchParams(window.location.search);
         const memberId = urlParams.get('id');
         const token = localStorage.getItem('token');
@@ -197,7 +197,7 @@
                         const preview = document.getElementById(`preview-${doc.docType}`);
                         const card = document.getElementById(`card-${doc.docType}`);
                         if (preview) {
-                            preview.innerHTML = `<img src="http://localhost:5001${doc.filePath}" alt="${doc.docType}">`;
+                            preview.innerHTML = `<img src="${doc.filePath}" alt="${doc.docType}">`;
 
                             // Add print button if not exists
                             if (!card.querySelector('.btn-print')) {
@@ -213,7 +213,7 @@
                                 printBtn.style.padding = '0.25rem 0.5rem';
                                 printBtn.style.fontSize = '0.8rem';
                                 printBtn.textContent = 'Print';
-                                printBtn.onclick = () => printDoc(`http://localhost:5001${doc.filePath}`);
+                                printBtn.onclick = () => printDoc(`${doc.filePath}`);
 
                                 const deleteBtn = document.createElement('button');
                                 deleteBtn.className = 'btn btn-danger';

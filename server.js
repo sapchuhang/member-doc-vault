@@ -3,8 +3,14 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const sequelize = require('./config/database');
+const fs = require('fs');
 
 const app = express();
+
+// Create uploads directory if it doesn't exist
+if (!fs.existsSync('./uploads')) {
+    fs.mkdirSync('./uploads');
+}
 
 // Middleware
 app.use(cors());
