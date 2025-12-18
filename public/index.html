@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -14,6 +14,7 @@
     <div id="login-section" class="container-sm animate-fade-in">
         <div class="card">
             <div class="text-center">
+                <img src="logo.jpg" alt="Logo" style="height: 80px; margin-bottom: 1rem;">
                 <h2 style="margin-bottom: 0.5rem;">Admin Login</h2>
                 <p class="text-muted" style="margin-bottom: 2rem;">Sign in to manage members</p>
             </div>
@@ -37,9 +38,12 @@
     <!-- Dashboard Section -->
     <div id="dashboard-section" class="container animate-fade-in" style="display: none;">
         <div class="header flex-between">
-            <div>
-                <h1>Dashboard</h1>
-                <p class="text-muted">Manage your organization members</p>
+            <div class="flex">
+                <img src="logo.jpg" alt="Logo" style="height: 50px;">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p class="text-muted">Manage your organization members</p>
+                </div>
             </div>
             <div class="flex">
                 <input type="text" id="search-input" placeholder="Search members...">

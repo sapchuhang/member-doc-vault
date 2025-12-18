@@ -5,16 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Details</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <div class="container animate-fade-in">
         <div class="header flex-between">
-            <div>
-                <h1>Member Details</h1>
-                <p class="text-muted">View and manage member documents</p>
+            <div class="flex">
+                <img src="logo.jpg" alt="Logo" style="height: 50px;">
+                <div>
+                    <h1>Member Details</h1>
+                    <p class="text-muted">View and manage member documents</p>
+                </div>
             </div>
                 <button class="btn" onclick="generatePDF()" title="Generate PDF Profile">📄 PDF</button>
                 <button class="btn" onclick="downloadAll()" title="Download All Documents">📥 Download All</button>
